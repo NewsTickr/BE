@@ -1,0 +1,12 @@
+[submodule "BE_Service"]
+	path = BE_Service
+	url = https://github.com/NewsTickr/BE_Service
+[submodule "BE_ConfigServer"]
+	path = BE_ConfigServer
+	url = https://github.com/NewsTickr/BE_ConfigServer
+[submodule "BE_EurekaServer"]
+	path = BE_EurekaServer
+	url = https://github.com/NewsTickr/BE_EurekaServer
+[submodule "BE_GatewayServer"]
+	path = BE_GatewayServer
+	url = https://github.com/NewsTickr/BE_GatewayServer
