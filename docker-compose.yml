@@ -1,0 +1,94 @@
+services:
+  config-server:
+    image: honey0928/configserver:latest
+    platform: linux/amd64
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: "curl --fail --silent 127.0.0.1:8888/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - lgcns
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  eureka-server:
+    image: honey0928/eurekaserver:latest
+    platform: linux/amd64
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: "curl --fail --silent 127.0.0.1:8761/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      config-server:
+        condition: service_healthy
+        restart: true
+    networks:
+      - lgcns
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  gateway-server:
+    image: honey0928/gatewayserver:latest
+    platform: linux/amd64
+    container_name: geteway-server
+    ports:
+      - "8081:8081"
+    depends_on:
+      config-server:
+        condition: service_healthy
+        restart: true
+      eureka-server:
+        condition: service_healthy
+        restart: true
+    networks:
+      - lgcns
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+
+  service-server:
+    image: honey0928/newstickr:latest
+    platform: linux/amd64
+    container_name: newstickr-server
+    ports:
+      - "8085:8085"
+    depends_on:
+      config-server:
+        condition: service_healthy
+        restart: true
+      eureka-server:
+        condition: service_healthy
+        restart: true
+    networks:
+      - lgcns
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx-server:
+    image: honey0928/newstickrfe:latest
+    platform: linux/amd64
+    container_name: newstickr-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - service-server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+networks:
+  lgcns:
+    driver: bridge
